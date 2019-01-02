@@ -8,6 +8,7 @@ import (
       "io"
       "log"
       "os"
+      "net/http"
 )
 
 type person struct {
@@ -33,7 +34,30 @@ func main() {
 
    msgDataReader := *strings.NewReader(msgData.Encode())
    
+   client := &http.Client{}
    
-     
+   req, _ := http.NewRequest("POST", urlStr, &msgDataReader)
+   
+   req.SetBasicAuth(accountSid, authToken)
+   
+   req.Header.Add("Accept", "application/json")
+   
+   req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+   resp, _ := client.Do(req)
+   
+if (resp.StatusCode >= 200 && resp.StatusCode < 300) {
+
+  var data map[string]interface{}
+  
+  decoder := json.NewDecoder(resp.Body)
+  
+  err := decoder.Decode(&data)
+  if (err == nil) {
+    fmt.Println(data["sid"])
+  }
+} else {
+  fmt.Println(resp.Status);
+}
 
 }
